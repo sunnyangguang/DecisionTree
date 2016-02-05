@@ -1,16 +1,27 @@
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.LineNumberReader;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Scanner;
 import java.util.Set;
 
 public class DicisionTree {
 
 	public static void main(String[] args) throws Exception {
-		String[] attrNames = new String[] { "AGE", "INCOME", "STUDENT",
-				"CREDIT_RATING" };
+//		String[] attrNames = new String[] { "XB", "XC", "XD","XE","XF","XG","XH","XI","XJ","XK","XL","XM","XN",
+//				"XO","XP","XQ","XR","XS","XT","XU"};
+		
+		String[] attrNames = new String[] {"<2years","missedPayments","defaulted"};
+		
+		//String[] attrNames = new String[] { "AGE", "INCOME", "STUDENT","CREDIT_RATING" };
 
 		// 读取样本集
 		Map<Object, List<Sample>> samples = readSamples(attrNames);
@@ -26,23 +37,53 @@ public class DicisionTree {
 	 * 读取已分类的样本集，返回Map：分类 -> 属于该分类的样本的列表
 	 */
 	static Map<Object, List<Sample>> readSamples(String[] attrNames) {
+		
+		//String fileName = "training_set.csv";
+		String fileName = "carModel.csv";
+		File file = new File(fileName);
+		
+		
+		// get the total rows of the csv file (not including the attributes row)
+		int rows = 0;
+		try {
+			rows = getRows(fileName);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		System.out.println("Total rows of CVS file is : " + rows);
+		
+		
+		Object[][] rawData = new Object[rows][];
+		// Set each row as an array and put into the two dimensional array
+		int curRow = 0;
+		
+		try {
+			Scanner inputStream = new Scanner(file);
+			inputStream.nextLine();
 
+			while(inputStream.hasNext()){
+				String data = inputStream.next();
+				String[] values = data.split(",");
+				rawData[curRow] = values;
+				
+				System.out.println(data + "***");
+				curRow++;
+				System.out.println(curRow);
+				
+			}
+			inputStream.close();
+			
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		
+		System.out.println("Matrix :");
+		System.out.println(Arrays.deepToString(rawData));
+		
 		// 样本属性及其所属分类（数组中的最后一个元素为样本所属分类）
-		Object[][] rawData = new Object[][] {
-				{ "<30  ", "High  ", "No ", "Fair     ", "0" },
-				{ "<30  ", "High  ", "No ", "Excellent", "0" },
-				{ "30-40", "High  ", "No ", "Fair     ", "1" },
-				{ ">40  ", "Medium", "No ", "Fair     ", "1" },
-				{ ">40  ", "Low   ", "Yes", "Fair     ", "1" },
-				{ ">40  ", "Low   ", "Yes", "Excellent", "0" },
-				{ "30-40", "Low   ", "Yes", "Excellent", "1" },
-				{ "<30  ", "Medium", "No ", "Fair     ", "0" },
-				{ "<30  ", "Low   ", "Yes", "Fair     ", "1" },
-				{ ">40  ", "Medium", "Yes", "Fair     ", "1" },
-				{ "<30  ", "Medium", "Yes", "Excellent", "1" },
-				{ "30-40", "Medium", "No ", "Excellent", "1" },
-				{ "30-40", "High  ", "Yes", "Fair     ", "1" },
-				{ ">40  ", "Medium", "No ", "Excellent", "0" } };
+
 
 		// 读取样本属性及其所属分类，构造表示样本的Sample对象，并按分类划分样本集
 		Map<Object, List<Sample>> ret = new HashMap<Object, List<Sample>>();
@@ -62,7 +103,21 @@ public class DicisionTree {
 
 		return ret;
 	}
-
+	// Get the rows of a CSV file
+	public static int getRows(String str) throws IOException{
+		LineNumberReader lnr = null;
+		try {
+			lnr = new LineNumberReader(new FileReader(new File(str)));
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		lnr.skip(Long.MAX_VALUE);
+		// Finally, the LineNumberReader object should be closed to prevent resource leak
+		lnr.close();
+		return lnr.getLineNumber();
+	}
+	
 	/**
 	 * 构造决策树
 	 */
