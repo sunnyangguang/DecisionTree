@@ -19,22 +19,22 @@ public class DicisionTree {
 //		String[] attrNames = new String[] { "XB", "XC", "XD","XE","XF","XG","XH","XI","XJ","XK","XL","XM","XN",
 //				"XO","XP","XQ","XR","XS","XT","XU"};
 		
-		String[] attrNames = new String[] {"<2years","missedPayments","defaulted"};
+		String[] attrNames = new String[] {"<!!!2years","missedPayments","defaulted"};
 		
 		//String[] attrNames = new String[] { "AGE", "INCOME", "STUDENT","CREDIT_RATING" };
 
-		// 读取样本集
+		// è¯»å�–æ ·æœ¬é›†
 		Map<Object, List<Sample>> samples = readSamples(attrNames);
 
-		// 生成决策树
+		// ç”Ÿæˆ�å†³ç­–æ ‘
 		Object decisionTree = generateDecisionTree(samples, attrNames);
 
-		// 输出决策树
+		// è¾“å‡ºå†³ç­–æ ‘
 		outputDecisionTree(decisionTree, 0, null);
 	}
 
 	/**
-	 * 读取已分类的样本集，返回Map：分类 -> 属于该分类的样本的列表
+	 * è¯»å�–å·²åˆ†ç±»çš„æ ·æœ¬é›†ï¼Œè¿”å›žMapï¼šåˆ†ç±» -> å±žäºŽè¯¥åˆ†ç±»çš„æ ·æœ¬çš„åˆ—è¡¨
 	 */
 	static Map<Object, List<Sample>> readSamples(String[] attrNames) {
 		
@@ -82,10 +82,10 @@ public class DicisionTree {
 		System.out.println("Matrix :");
 		System.out.println(Arrays.deepToString(rawData));
 		
-		// 样本属性及其所属分类（数组中的最后一个元素为样本所属分类）
+		// æ ·æœ¬å±žæ€§å�Šå…¶æ‰€å±žåˆ†ç±»ï¼ˆæ•°ç»„ä¸­çš„æœ€å�Žä¸€ä¸ªå…ƒç´ ä¸ºæ ·æœ¬æ‰€å±žåˆ†ç±»ï¼‰
 
 
-		// 读取样本属性及其所属分类，构造表示样本的Sample对象，并按分类划分样本集
+		// è¯»å�–æ ·æœ¬å±žæ€§å�Šå…¶æ‰€å±žåˆ†ç±»ï¼Œæž„é€ è¡¨ç¤ºæ ·æœ¬çš„Sampleå¯¹è±¡ï¼Œå¹¶æŒ‰åˆ†ç±»åˆ’åˆ†æ ·æœ¬é›†
 		Map<Object, List<Sample>> ret = new HashMap<Object, List<Sample>>();
 		for (Object[] row : rawData) {
 			Sample sample = new Sample();
@@ -119,16 +119,16 @@ public class DicisionTree {
 	}
 	
 	/**
-	 * 构造决策树
+	 * æž„é€ å†³ç­–æ ‘
 	 */
 	static Object generateDecisionTree(
 			Map<Object, List<Sample>> categoryToSamples, String[] attrNames) {
 
-		// 如果只有一个样本，将该样本所属分类作为新样本的分类
+		// å¦‚æžœå�ªæœ‰ä¸€ä¸ªæ ·æœ¬ï¼Œå°†è¯¥æ ·æœ¬æ‰€å±žåˆ†ç±»ä½œä¸ºæ–°æ ·æœ¬çš„åˆ†ç±»
 		if (categoryToSamples.size() == 1)
 			return categoryToSamples.keySet().iterator().next();
 
-		// 如果没有供决策的属性，则将样本集中具有最多样本的分类作为新样本的分类，即投票选举出分类
+		// å¦‚æžœæ²¡æœ‰ä¾›å†³ç­–çš„å±žæ€§ï¼Œåˆ™å°†æ ·æœ¬é›†ä¸­å…·æœ‰æœ€å¤šæ ·æœ¬çš„åˆ†ç±»ä½œä¸ºæ–°æ ·æœ¬çš„åˆ†ç±»ï¼Œå�³æŠ•ç¥¨é€‰ä¸¾å‡ºåˆ†ç±»
 		if (attrNames.length == 0) {
 			int max = 0;
 			Object maxCategory = null;
@@ -143,19 +143,19 @@ public class DicisionTree {
 			return maxCategory;
 		}
 
-		// 选取测试属性
+		// é€‰å�–æµ‹è¯•å±žæ€§
 		Object[] rst = chooseBestTestAttribute(categoryToSamples, attrNames);
 
-		// 决策树根结点，分支属性为选取的测试属性
+		// å†³ç­–æ ‘æ ¹ç»“ç‚¹ï¼Œåˆ†æ”¯å±žæ€§ä¸ºé€‰å�–çš„æµ‹è¯•å±žæ€§
 		Tree tree = new Tree(attrNames[(Integer) rst[0]]);
 
-		// 已用过的测试属性不应再次被选为测试属性
+		// å·²ç”¨è¿‡çš„æµ‹è¯•å±žæ€§ä¸�åº”å†�æ¬¡è¢«é€‰ä¸ºæµ‹è¯•å±žæ€§
 		String[] subA = new String[attrNames.length - 1];
 		for (int i = 0, j = 0; i < attrNames.length; i++)
 			if (i != (Integer) rst[0])
 				subA[j++] = attrNames[i];
 
-		// 根据分支属性生成分支
+		// æ ¹æ�®åˆ†æ”¯å±žæ€§ç”Ÿæˆ�åˆ†æ”¯
 		@SuppressWarnings("unchecked")
 		Map<Object, Map<Object, List<Sample>>> splits =
 		/* NEW LINE */(Map<Object, Map<Object, List<Sample>>>) rst[2];
@@ -170,22 +170,22 @@ public class DicisionTree {
 	}
 
 	/**
-	 * 选取最优测试属性。最优是指如果根据选取的测试属性分支，则从各分支确定新样本
-	 * 的分类需要的信息量之和最小，这等价于确定新样本的测试属性获得的信息增益最大
-	 * 返回数组：选取的属性下标、信息量之和、Map(属性值->(分类->样本列表))
+	 * é€‰å�–æœ€ä¼˜æµ‹è¯•å±žæ€§ã€‚æœ€ä¼˜æ˜¯æŒ‡å¦‚æžœæ ¹æ�®é€‰å�–çš„æµ‹è¯•å±žæ€§åˆ†æ”¯ï¼Œåˆ™ä»Žå�„åˆ†æ”¯ç¡®å®šæ–°æ ·æœ¬
+	 * çš„åˆ†ç±»éœ€è¦�çš„ä¿¡æ�¯é‡�ä¹‹å’Œæœ€å°�ï¼Œè¿™ç­‰ä»·äºŽç¡®å®šæ–°æ ·æœ¬çš„æµ‹è¯•å±žæ€§èŽ·å¾—çš„ä¿¡æ�¯å¢žç›Šæœ€å¤§
+	 * è¿”å›žæ•°ç»„ï¼šé€‰å�–çš„å±žæ€§ä¸‹æ ‡ã€�ä¿¡æ�¯é‡�ä¹‹å’Œã€�Map(å±žæ€§å€¼->(åˆ†ç±»->æ ·æœ¬åˆ—è¡¨))
 	 */
 	static Object[] chooseBestTestAttribute(
 			Map<Object, List<Sample>> categoryToSamples, String[] attrNames) {
 
-		int minIndex = -1; // 最优属性下标
-		double minValue = Double.MAX_VALUE; // 最小信息量
-		Map<Object, Map<Object, List<Sample>>> minSplits = null; // 最优分支方案
+		int minIndex = -1; // æœ€ä¼˜å±žæ€§ä¸‹æ ‡
+		double minValue = Double.MAX_VALUE; // æœ€å°�ä¿¡æ�¯é‡�
+		Map<Object, Map<Object, List<Sample>>> minSplits = null; // æœ€ä¼˜åˆ†æ”¯æ–¹æ¡ˆ
 
-		// 对每一个属性，计算将其作为测试属性的情况下在各分支确定新样本的分类需要的信息量之和，选取最小为最优
+		// å¯¹æ¯�ä¸€ä¸ªå±žæ€§ï¼Œè®¡ç®—å°†å…¶ä½œä¸ºæµ‹è¯•å±žæ€§çš„æƒ…å†µä¸‹åœ¨å�„åˆ†æ”¯ç¡®å®šæ–°æ ·æœ¬çš„åˆ†ç±»éœ€è¦�çš„ä¿¡æ�¯é‡�ä¹‹å’Œï¼Œé€‰å�–æœ€å°�ä¸ºæœ€ä¼˜
 		for (int attrIndex = 0; attrIndex < attrNames.length; attrIndex++) {
-			int allCount = 0; // 统计样本总数的计数器
+			int allCount = 0; // ç»Ÿè®¡æ ·æœ¬æ€»æ•°çš„è®¡æ•°å™¨
 
-			// 按当前属性构建Map：属性值->(分类->样本列表)
+			// æŒ‰å½“å‰�å±žæ€§æž„å»ºMapï¼šå±žæ€§å€¼->(åˆ†ç±»->æ ·æœ¬åˆ—è¡¨)
 			Map<Object, Map<Object, List<Sample>>> curSplits =
 			/* NEW LINE */new HashMap<Object, Map<Object, List<Sample>>>();
 			for (Entry<Object, List<Sample>> entry : categoryToSamples
@@ -210,13 +210,13 @@ public class DicisionTree {
 				allCount += samples.size();
 			}
 
-			// 计算将当前属性作为测试属性的情况下在各分支确定新样本的分类需要的信息量之和
-			double curValue = 0.0; // 计数器：累加各分支
+			// è®¡ç®—å°†å½“å‰�å±žæ€§ä½œä¸ºæµ‹è¯•å±žæ€§çš„æƒ…å†µä¸‹åœ¨å�„åˆ†æ”¯ç¡®å®šæ–°æ ·æœ¬çš„åˆ†ç±»éœ€è¦�çš„ä¿¡æ�¯é‡�ä¹‹å’Œ
+			double curValue = 0.0; // è®¡æ•°å™¨ï¼šç´¯åŠ å�„åˆ†æ”¯
 			for (Map<Object, List<Sample>> splits : curSplits.values()) {
 				double perSplitCount = 0;
 				for (List<Sample> list : splits.values())
-					perSplitCount += list.size(); // 累计当前分支样本数
-				double perSplitValue = 0.0; // 计数器：当前分支
+					perSplitCount += list.size(); // ç´¯è®¡å½“å‰�åˆ†æ”¯æ ·æœ¬æ•°
+				double perSplitValue = 0.0; // è®¡æ•°å™¨ï¼šå½“å‰�åˆ†æ”¯
 				for (List<Sample> list : splits.values()) {
 					double p = list.size() / perSplitCount;
 					perSplitValue -= p * (Math.log(p) / Math.log(2));
@@ -224,7 +224,7 @@ public class DicisionTree {
 				curValue += (perSplitCount / allCount) * perSplitValue;
 			}
 
-			// 选取最小为最优
+			// é€‰å�–æœ€å°�ä¸ºæœ€ä¼˜
 			if (minValue > curValue) {
 				minIndex = attrIndex;
 				minValue = curValue;
@@ -236,7 +236,7 @@ public class DicisionTree {
 	}
 
 	/**
-	 * 将决策树输出到标准输出
+	 * å°†å†³ç­–æ ‘è¾“å‡ºåˆ°æ ‡å‡†è¾“å‡º
 	 */
 	static void outputDecisionTree(Object obj, int level, Object from) {
 		for (int i = 0; i < level; i++)
@@ -258,7 +258,7 @@ public class DicisionTree {
 	}
 
 	/**
-	 * 样本，包含多个属性和一个指明样本所属分类的分类值
+	 * æ ·æœ¬ï¼ŒåŒ…å�«å¤šä¸ªå±žæ€§å’Œä¸€ä¸ªæŒ‡æ˜Žæ ·æœ¬æ‰€å±žåˆ†ç±»çš„åˆ†ç±»å€¼
 	 */
 	static class Sample {
 
@@ -289,8 +289,8 @@ public class DicisionTree {
 	}
 
 	/**
-	 * 决策树（非叶结点），决策树中的每个非叶结点都引导了一棵决策树
-	 * 每个非叶结点包含一个分支属性和多个分支，分支属性的每个值对应一个分支，该分支引导了一棵子决策树
+	 * å†³ç­–æ ‘ï¼ˆé�žå�¶ç»“ç‚¹ï¼‰ï¼Œå†³ç­–æ ‘ä¸­çš„æ¯�ä¸ªé�žå�¶ç»“ç‚¹éƒ½å¼•å¯¼äº†ä¸€æ£µå†³ç­–æ ‘
+	 * æ¯�ä¸ªé�žå�¶ç»“ç‚¹åŒ…å�«ä¸€ä¸ªåˆ†æ”¯å±žæ€§å’Œå¤šä¸ªåˆ†æ”¯ï¼Œåˆ†æ”¯å±žæ€§çš„æ¯�ä¸ªå€¼å¯¹åº”ä¸€ä¸ªåˆ†æ”¯ï¼Œè¯¥åˆ†æ”¯å¼•å¯¼äº†ä¸€æ£µå­�å†³ç­–æ ‘
 	 */
 	static class Tree {
 
